@@ -108,6 +108,7 @@
   <script type="text/javascript" src="/third-party/Three/RequestAnimationFrame.js"></script>
   <script type="text/javascript" src="/third-party/Three/Detector.js"></script>
   <script type="text/javascript" src="/third-party/Tween.js"></script>
+  <script type="text/javascript" src="/third-party/Stats.js"></script>
   <script type="text/javascript" src="/globe.js"></script>
   <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
   <script type="text/javascript">
@@ -202,6 +203,13 @@
       setInterval(fetchUpdate, 1000);
       globe.animate();
     }
+
+    var stats = new Stats();
+    stats.getDomElement().style.position = 'absolute';
+    stats.getDomElement().style.right = '0px';
+    stats.getDomElement().style.top = '0px';
+    document.body.appendChild(stats.getDomElement());
+    setInterval( function () { stats.update(); }, 1000 / 60 );
 
   </script>
 
