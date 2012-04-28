@@ -105,7 +105,7 @@ DAT.Globe = function(container, colorFn) {
     scene = new THREE.Scene();
     sceneAtmosphere = new THREE.Scene();
 
-    var geometry = new THREE.Sphere(200, 40, 30);
+    var geometry = new THREE.SphereGeometry(200, 40, 30);
 
     shader = Shaders['earth'];
     uniforms = THREE.UniformsUtils.clone(shader.uniforms);
@@ -113,7 +113,7 @@ DAT.Globe = function(container, colorFn) {
     uniforms['texture'].texture = THREE.ImageUtils.loadTexture(imgDir+'world' +
         '.jpg');
 
-    material = new THREE.MeshShaderMaterial({
+    material = new THREE.ShaderMaterial({
 
           uniforms: uniforms,
           vertexShader: shader.vertexShader,
@@ -123,12 +123,12 @@ DAT.Globe = function(container, colorFn) {
 
     mesh = new THREE.Mesh(geometry, material);
     mesh.matrixAutoUpdate = false;
-    scene.addObject(mesh);
+    scene.add(mesh);
 
     shader = Shaders['atmosphere'];
     uniforms = THREE.UniformsUtils.clone(shader.uniforms);
 
-    material = new THREE.MeshShaderMaterial({
+    material = new THREE.ShaderMaterial({
 
           uniforms: uniforms,
           vertexShader: shader.vertexShader,
@@ -141,19 +141,23 @@ DAT.Globe = function(container, colorFn) {
     mesh.flipSided = true;
     mesh.matrixAutoUpdate = false;
     mesh.updateMatrix();
-    sceneAtmosphere.addObject(mesh);
+    sceneAtmosphere.add(mesh);
 
-    geometry = new THREE.Cube(0.75, 0.75, 1, 1, 1, 1, null, false, { px: true,
+    geometry = new THREE.CubeGeometry(0.75, 0.75, 1, 1, 1, 1, null, false, { px: true,
           nx: true, py: true, ny: true, pz: false, nz: true});
 
     for (var i = 0; i < geometry.vertices.length; i++) {
 
       var vertex = geometry.vertices[i];
-      vertex.position.z += 0.5;
+      vertex.z += 0.5;
 
     }
 
-    point = new THREE.Mesh(geometry);
+    point = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
+              color: 0xffffff,
+              vertexColors: THREE.FaceColors,
+              morphTargets: false
+            }));
 
     renderer = new THREE.WebGLRenderer({antialias: true});
     renderer.autoClear = false;
@@ -236,7 +240,7 @@ DAT.Globe = function(container, colorFn) {
 
   function createPoints() {
     if (this._baseGeometry !== undefined) {
-      if (this.points) scene.removeObject(this.points);
+      if (this.points) scene.remove(this.points);
       if (this.is_animated === false) {
         this.points = new THREE.Mesh(this._baseGeometry, new THREE.MeshBasicMaterial({
               color: 0xffffff,
@@ -259,7 +263,7 @@ DAT.Globe = function(container, colorFn) {
               morphTargets: true
             }));
       }
-      scene.addObject(this.points);
+      scene.add(this.points);
     }
   }
 
@@ -280,10 +284,15 @@ DAT.Globe = function(container, colorFn) {
     for (i = 0; i < point.geometry.faces.length; i++) {
 
       point.geometry.faces[i].color = color;
-
+      point.geometry.faces[i].material = new THREE.MeshBasicMaterial({
+              color: 0xffffff,
+              vertexColors: THREE.FaceColors,
+              morphTargets: false
+            });
+       point.geometry.materials[i] = point.geometry.faces[i].material;
     }
 
-    GeometryUtils.merge(subgeo, point);
+    THREE.GeometryUtils.merge(subgeo, point);
   }
 
   function onMouseDown(event) {
