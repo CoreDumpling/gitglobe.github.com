@@ -153,7 +153,11 @@ DAT.Globe = function(container, colorFn) {
 
     }
 
-    point = new THREE.Mesh(geometry);
+    point = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
+              color: 0xffffff,
+              vertexColors: THREE.FaceColors,
+              morphTargets: false
+            }));
 
     renderer = new THREE.WebGLRenderer({antialias: true});
     renderer.autoClear = false;
@@ -283,7 +287,7 @@ DAT.Globe = function(container, colorFn) {
 
     }
 
-    GeometryUtils.merge(subgeo, point);
+    scene.addObject(point);
   }
 
   function onMouseDown(event) {
@@ -422,6 +426,7 @@ DAT.Globe = function(container, colorFn) {
   });
 
   this.addData = addData;
+  this.addPoint  = addPoint;
   this.createPoints = createPoints;
   this.renderer = renderer;
   this.scene = scene;
