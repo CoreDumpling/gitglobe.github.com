@@ -96,14 +96,19 @@ DAT.Globe = function(container, colorFn) {
     w = container.offsetWidth || window.innerWidth;
     h = container.offsetHeight || window.innerHeight;
 
-    camera = new THREE.Camera(
+    camera = new THREE.PerspectiveCamera(
         30, w / h, 1, 10000);
+    camera.position.x = 0;
+    camera.position.y = 0;
     camera.position.z = distance;
 
     vector = new THREE.Vector3();
 
     scene = new THREE.Scene();
     sceneAtmosphere = new THREE.Scene();
+    camera.lookAt(scene.position);
+    scene.add(camera);
+    sceneAtmosphere.add(camera);
 
     var geometry = new THREE.SphereGeometry(200, 40, 30);
 
