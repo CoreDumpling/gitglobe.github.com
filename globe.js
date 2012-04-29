@@ -287,14 +287,23 @@ DAT.Globe = function(container, colorFn) {
     bar.scale.z = -200 * size;
     bar.updateMatrix();
     var color = colorFn(size);
-    for (var i = 0; i < point.geometry.faces.length; i++) {
-      point.geometry.faces[i].color = color;
+    for (var i = 0; i < bar.geometry.faces.length; i++) {
+      bar.geometry.faces[i].color = color;
     }
     return bar;
   }
 
   function addPoint(lat, lng, size, color, subgeo) {
-    scene.addObject(createBar(lat, lng, size));
+    var b = (lat + 90) * 360 + (lng + 180);
+    if (bars[b]) {
+      bars[b].scale.z = -200 * size;
+      for (var i = 0; i < bars[b].geometry.faces.length; i++) {
+        bars[b].geometry.faces[i].color = color;
+      }
+    } else {
+      bars[b] = createBar(lat, lng, size);
+      scene.addObject(bars[b]);
+    }
   }
 
   function onMouseDown(event) {
