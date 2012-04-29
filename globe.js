@@ -88,7 +88,6 @@ DAT.Globe = function(container, colorFn) {
   var PI_HALF = Math.PI / 2;
 
   // individual bars for each integral coordinate pair
-  var barGeometry;
   var bars = new Array(360 * 181 * 3);
 
   function init() {
@@ -156,7 +155,6 @@ DAT.Globe = function(container, colorFn) {
       vertex.position.z += 0.5;
 
     }
-    barGeometry = geometry;
 
     point = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
               color: 0xffffff,
@@ -275,11 +273,18 @@ DAT.Globe = function(container, colorFn) {
   function createBar(lat, lng, size) {
     var phi = (90 - lat) * Math.PI / 180;
     var theta = (180 - lng) * Math.PI / 180;
-    var bar = new THREE.Mesh(barGeometry, new THREE.MeshBasicMaterial({
-                color: 0xffffff,
-                vertexColors: THREE.FaceColors,
-                morphTargets: false
-              }));
+    var geometry = new THREE.Cube(0.75, 0.75, 1, 1, 1, 1, null, false,
+      {px: true, nx: true, py: true, ny: true, pz: false, nz: true});
+    for (var i = 0; i < geometry.vertices.length; i++) {
+      var vertex = geometry.vertices[i];
+      vertex.position.z += 0.5;
+    }
+    var material = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      vertexColors: THREE.FaceColors,
+      morphTargets: false
+    });
+    var bar = new THREE.Mesh(geometry, material);
     bar.position.x = 200 * Math.sin(phi) * Math.cos(theta);
     bar.position.y = 200 * Math.cos(phi);
     bar.position.z = 200 * Math.sin(phi) * Math.sin(theta);
@@ -298,8 +303,9 @@ DAT.Globe = function(container, colorFn) {
     if (bars[b]) {
       bars[b].scale.z = -200 * size;
       for (var i = 0; i < bars[b].geometry.faces.length; i++) {
-        bars[b].geometry.faces[i].color = color;
+        bars[b].geometry.faces[i].color = colorFn(size);
       }
+      bars[b].geometry.__dirtyColors = true;
     } else {
       bars[b] = createBar(lat, lng, size);
       scene.addObject(bars[b]);
