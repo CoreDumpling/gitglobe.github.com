@@ -192,6 +192,7 @@ DAT.Globe = function(container, colorFn) {
     }, false);
 
     container.addEventListener('click', onClick, false);
+    container.addEventListener('mousemove', onMouseHover, false);
   }
 
   addData = function(data, opts) {
@@ -331,6 +332,35 @@ DAT.Globe = function(container, colorFn) {
       alert("lat: " + phi * 180 / Math.PI + " lon: " + theta * 180 / Math.PI);
     }
     console.log(intersects);
+  }
+
+  function onMouseHover(event) {
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    var vector = new THREE.Vector3( mouse.x, mouse.y, 0.5 );
+    projector.unprojectVector( vector, camera );
+    var ray = new THREE.Ray(camera.position, vector.subSelf(camera.position).normalize());
+    var intersects = ray.intersectScene(scene);
+    for (var i = 0; i < intersects.length; ++i) {
+      if (intersects[i].object.geometry instanceof THREE.Cube) {
+        var phi = Math.asin(intersects[i].point.y / 200);
+        var theta = Math.atan2(intersects[i].point.z, -intersects[0].point.x);
+        console.log("lat: " + phi * 180 / Math.PI + " lon: " + theta * 180 / Math.PI);
+
+        // highlight object
+        var bar = intersects[i].object;
+        for (var f = 0; f < bar.geometry.faces.length; ++f) {
+          bar.geometry.faces[i].color.r = 1;
+          bar.geometry.faces[i].color.g = 0;
+          bar.geometry.faces[i].color.b = 0;
+        }
+        bar.scale.x = 1.5;
+        bar.scale.y = 1.5;
+        bar.geometry.__dirtyColors = true;
+        bar.geometry.__dirtyVertices = true;
+      }
+    }
   }
 
   function onMouseDown(event) {
