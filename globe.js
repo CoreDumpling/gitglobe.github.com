@@ -70,6 +70,7 @@ DAT.Globe = function(container, colorFn) {
 
   var camera, scene, sceneAtmosphere, renderer, w, h;
   var vector, mesh, atmosphere, point;
+  var projector;
 
   var overRenderer;
 
@@ -107,6 +108,8 @@ DAT.Globe = function(container, colorFn) {
 
     scene = new THREE.Scene();
     sceneAtmosphere = new THREE.Scene();
+
+    projector = new THREE.Projector();
 
     var geometry = new THREE.Sphere(200, 40, 30);
 
@@ -187,6 +190,8 @@ DAT.Globe = function(container, colorFn) {
     container.addEventListener('mouseout', function() {
       overRenderer = false;
     }, false);
+
+    container.addEventListener('click', onClick, false);
   }
 
   addData = function(data, opts) {
@@ -310,6 +315,22 @@ DAT.Globe = function(container, colorFn) {
       bars[b] = createBar(lat, lng, size);
       scene.addObject(bars[b]);
     }
+  }
+
+  function onClick(event) {
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    var vector = new THREE.Vector3( mouse.x, mouse.y, 0.5 );
+    projector.unprojectVector( vector, camera );
+    var ray = new THREE.Ray(camera.position, vector.subSelf(camera.position).normalize());
+    var intersects = ray.intersectScene(scene);
+    if (intersects) {
+      var phi = Math.asin(intersects[0].point.y / 200);
+      var theta = Math.atan2(intersects[0].point.z, -intersects[0].point.x);
+      alert("lat: " + phi * 180 / Math.PI + " lon: " + theta * 180 / Math.PI);
+    }
+    console.log(intersects);
   }
 
   function onMouseDown(event) {
